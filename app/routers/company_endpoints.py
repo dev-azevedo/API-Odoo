@@ -1,9 +1,9 @@
 from http import HTTPStatus
-
+from fastapi import status
 from fastapi import APIRouter, HTTPException
 
 from app.config.settings import ODOO_DB, ODOO_PASSWORD, ODOO_URL, ODOO_USERNAME
-from app.schemas.schemas import Company_default, Company_return, Message
+from app.schemas.schemas import Company_default, Company_return, Message, CompanyUpdadeSegment
 from app.Services.authentication import authenticate_odoo, connect_to_odoo
 from app.Services.company_service import (
     create_company_in_odoo,
@@ -13,6 +13,7 @@ from app.Services.company_service import (
     get_company_by_id,
     get_company_by_vat,
     update_company_in_odoo,
+    update_segment_company_in_odoo
 )
 from app.utils.utils import clean_vat
 
@@ -126,7 +127,6 @@ async def list_companies_by_id(id: int):
     }
 
 
-from fastapi import status
 
 
 @router.post(
@@ -235,3 +235,31 @@ async def delete_company(company_id: int):
         )
 
     return {'message': 'User deleted'}
+
+@router.patch("/segmento/company_id")
+async def update_segment(company_id: int, company_info: CompanyUpdadeSegment):
+    common, models = connect_to_odoo(ODOO_URL)
+    uid = authenticate_odoo(common, ODOO_DB, ODOO_USERNAME, ODOO_PASSWORD)
+    
+    if not uid:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail='Falha na autenticação no Odoo',
+        )
+        
+    success = update_segment_company_in_odoo(
+        company_id=company_id, 
+        company_info=company_info.model_dump(),
+        models=models,
+        db=ODOO_DB,
+        uid=uid,
+        password=ODOO_PASSWORD    
+    )
+    
+    if not success:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Nenhuma empresa atualizada',
+        )
+        
+    return {'company_id': company_id}

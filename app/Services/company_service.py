@@ -137,3 +137,34 @@ def get_or_create_partner(contact_name, models, db, uid, password):
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
             detail=f'Erro ao buscar/criar cliente: {str(e)}',
         )
+        
+        
+def update_segment_company_in_odoo(
+    company_id, company_info, models, db, uid, password
+):
+    
+    company = get_company_by_id(id=company_id, models=models, db=db, uid=uid, password=password)
+    if not company:
+        print(f"Empresa com ID {company_id} não encontrada.")
+        return None
+    
+    update_data = {
+        'x_studio_cnae_nmero': company_info['x_studio_cnae_nmero'],
+        'x_studio_cnae_descrio': company_info['x_studio_cnae_descrio'],
+        'x_studio_categoria_economica': company_info['x_studio_categoria_economica'],
+    }
+    
+    try:
+        success = models.execute_kw(
+            db,
+            uid,
+            password,
+            'res.partner',
+            'write',
+            [[company_id], update_data],
+        )
+        print(success)
+        return success
+    except Exception as e:
+        print(f'Erro ao atualizar empresa: {e}')
+        return None

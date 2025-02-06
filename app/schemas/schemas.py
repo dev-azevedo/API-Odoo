@@ -16,7 +16,6 @@ class Company_default(BaseModel):
 class Company_return(Company_default):
     company_id: int
 
-
 class Opportunity_default(BaseModel):
     name: str
     contact_name: str
@@ -26,33 +25,27 @@ class Opportunity_default(BaseModel):
     tag_ids: list[int] = []  
     stage_id: int = 10
 
-
 class Opportunity_return(Opportunity_default):
     opportunity_id: int
-
 
 class TarefaCreate(BaseModel):
     name: str
     project_id: int
     stage_id: int
     tese_task: str | None
-    
+ 
 class TarefaUpdate(BaseModel):
     x_studio_tese_2: str
     x_studio_segmento: str
     
-
 class PartnerNames(BaseModel):
     names: list[str]
-
 
 class Config:
     extra = "allow"
 
-
 class Message(BaseModel):
     message: str
-
 
 class HealthCheck(BaseModel):
     status: str
@@ -60,6 +53,11 @@ class HealthCheck(BaseModel):
     timestamp: datetime
     uptime: float
 
-
 class PingResponse(BaseModel):
     status: str
+
+
+class CompanyUpdadeSegment(BaseModel):
+    x_studio_cnae_descrio: str
+    x_studio_cnae_nmero: str
+    x_studio_categoria_economica: str
